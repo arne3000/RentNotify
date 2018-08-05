@@ -10,11 +10,18 @@ export class MembershipService {
   _firebaseAuth = null;
   _firebaseAuthUI = null;
 
-  constructor() {}
+  _eventUserLogout = null;
+
+  CurrentUser = null;
+
+  constructor() {
+    console.log('test');
+  }
 
   get Auth() {
     if (this._firebaseAuth == null) {
       this._firebaseAuth = Firebase.auth();
+      this._firebaseAuth.onAuthStateChanged(this._eventOnAuthenticationChange);
     }
     return this._firebaseAuth;
   }
@@ -35,6 +42,32 @@ export class MembershipService {
   }
 
   IsUserLoggedIn() {
-    return true;
+    console.log('IsUserLoggedIn', this.CurrentUser);
+    return this.CurrentUser != null;
+  }
+
+  OnUserLogout(newEvent) {
+    this._eventUserLogout = newEvent;
+  }
+
+  _eventOnAuthenticationChange(user) {
+    this.CurrentUser = null;
+
+    if (user) {
+      this.CurrentUser = {
+        displayName: user.displayName,
+        email: user.email,
+        photoURL: user.photoURL,
+        isAnonymous: user.isAnonymous,
+        uid: user.uid,
+        providerData: user.providerData
+      };
+    }
+
+    console.log(this.CurrentUser);
+
+    if (this.CurrentUser == null && typeof this._eventUserLogout === 'function') {
+      this._eventUserLogout();
+    }
   }
 }

@@ -18,7 +18,9 @@ import { MembershipService } from './services/membership.service';
     BrowserModule,
     AppRoutingModule
   ],
-  providers: [MembershipService],
+  providers: [
+    MembershipService
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

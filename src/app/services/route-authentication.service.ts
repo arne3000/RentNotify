@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Router, CanActivate } from '@angular/router';
+import { Router, CanActivate, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 
 import { MembershipService } from './membership.service';
 
@@ -8,9 +8,20 @@ import { MembershipService } from './membership.service';
 })
 export class RouteAuthenticationService implements CanActivate {
 
-  constructor(private membershipService: MembershipService) { }
+  constructor(private membershipService: MembershipService, private router: Router) { }
 
-  canActivate() {
-    return this.membershipService.IsUserLoggedIn();
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    console.log('checking that were logged in');
+    if (this.membershipService.IsUserLoggedIn()) {
+      console.log('not authed');
+      return true;
+    } else {
+      this.router.navigate(['/login'], {
+        queryParams: {
+          return: state.url
+        }
+      });
+      return false;
+    }
   }
 }
