@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import Firebase from 'firebase/app';
+import Firebase from '@firebase/app';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +8,9 @@ import Firebase from 'firebase/app';
 })
 export class AppComponent implements OnInit {
   title = 'NotifyRent';
+
+  constructor() {}
+
   ngOnInit() {
     Firebase.initializeApp({
       apiKey: 'AIzaSyAN4L5ZskAjBP5LnmPd7o1hAEO7hebzW2I',

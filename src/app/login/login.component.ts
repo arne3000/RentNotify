@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import * as FirebaseUI from 'firebaseui';
-import Firebase from 'firebase/app';
+import { MembershipService } from '../services/membership.service';
 
 @Component({
   selector: 'app-login',
@@ -10,19 +9,12 @@ import Firebase from 'firebase/app';
 })
 export class LoginComponent implements OnInit {
 
-  constructor() { }
+  constructor(private membershipService: MembershipService) {}
 
   ngOnInit() {
-    let ui = new FirebaseUI.auth.AuthUI(Firebase.auth());
-    
-    ui.start('#firebaseui-auth-container', {
+    this.membershipService.AuthUI.start('#firebaseui-auth-container', {
       signInSuccessUrl: '/dashboard',
-      signInOptions: [
-        Firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-        Firebase.auth.EmailAuthProvider.PROVIDER_ID,
-        Firebase.auth.PhoneAuthProvider.PROVIDER_ID
-      ],
+      signInOptions: this.membershipService.SignInOptions,
     });
   }
-
 }
