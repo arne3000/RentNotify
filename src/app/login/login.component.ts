@@ -11,25 +11,14 @@ import { MembershipService } from '../services/membership.service';
 export class LoginComponent implements OnInit {
   returnUrl = '/dashboard';
 
-  constructor(private router: Router,
-    private route: ActivatedRoute,
-    private membershipService: MembershipService) {}
+  constructor(private router: Router, private route: ActivatedRoute, private membershipService: MembershipService) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe(params => this.returnUrl = params['return'] || '/dashboard');
 
-    this.membershipService.AuthUI.start('#firebaseui-auth-container', {
-      callbacks: {
-        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
-          // User successfully signed in.
-          // Return type determines whether we continue the redirect automatically
-          // or whether we leave that to developer to handle.
-          console.log(authResult, redirectUrl);
-          return true;
-        },
-      },
-      signInSuccessUrl: this.returnUrl ,
-      signInOptions: this.membershipService.SignInOptions,
+    this.membershipService.authUI.start('#firebaseui-auth-container', {
+      signInSuccessUrl: this.returnUrl,
+      signInOptions: this.membershipService.signInOptions,
     });
   }
 }

@@ -11,17 +11,17 @@ export class RouteAuthenticationService implements CanActivate {
   constructor(private membershipService: MembershipService, private router: Router) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    console.log('checking that were logged in');
-    if (this.membershipService.IsUserLoggedIn()) {
-      console.log('not authed');
-      return true;
-    } else {
-      this.router.navigate(['/login'], {
-        queryParams: {
-          return: state.url
-        }
+    return new Promise<boolean>((resolve, reject) => {
+      this.membershipService.getCurrentUser().then(() => {
+        resolve(true);
+      }, () => {
+        this.router.navigate(['/login'], {
+          queryParams: {
+            return: state.url
+          }
+        });
+        resolve(false);
       });
-      return false;
-    }
+    });
   }
 }

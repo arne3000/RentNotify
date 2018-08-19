@@ -1,73 +1,56 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Optional } from '@angular/core';
 import * as FirebaseUI from 'firebaseui';
 import Firebase from '@firebase/app';
 import '@firebase/auth';
+
+export class MembershipServiceConfig {
+  signInOptions = [];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class MembershipService {
-  _firebaseAuth = null;
-  _firebaseAuthUI = null;
+  private _firebaseAuthUI = null;
+  private _currentUser = null;
 
-  _eventUserLogout = null;
+  public signInOptions = [];
 
-  CurrentUser = null;
-
-  constructor() {
-    console.log('test');
-  }
-
-  get Auth() {
-    if (this._firebaseAuth == null) {
-      this._firebaseAuth = Firebase.auth();
-      this._firebaseAuth.onAuthStateChanged(this._eventOnAuthenticationChange);
+  constructor(@Optional() config: MembershipServiceConfig) {
+    if (config) {
+      this.signInOptions = config.signInOptions;
     }
-    return this._firebaseAuth;
   }
 
-  get AuthUI() {
+  public get authUI() {
     if (this._firebaseAuthUI == null) {
-      this._firebaseAuthUI = new FirebaseUI.auth.AuthUI(this.Auth);
+      this._firebaseAuthUI = new FirebaseUI.auth.AuthUI(Firebase.auth());
     }
     return this._firebaseAuthUI;
   }
 
-  get SignInOptions() {
-    return [
-      Firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-      Firebase.auth.EmailAuthProvider.PROVIDER_ID,
-      Firebase.auth.PhoneAuthProvider.PROVIDER_ID
-    ];
-  }
-
-  IsUserLoggedIn() {
-    console.log('IsUserLoggedIn', this.CurrentUser);
-    return this.CurrentUser != null;
-  }
-
-  OnUserLogout(newEvent) {
-    this._eventUserLogout = newEvent;
-  }
-
-  _eventOnAuthenticationChange(user) {
-    this.CurrentUser = null;
-
-    if (user) {
-      this.CurrentUser = {
-        displayName: user.displayName,
-        email: user.email,
-        photoURL: user.photoURL,
-        isAnonymous: user.isAnonymous,
-        uid: user.uid,
-        providerData: user.providerData
-      };
-    }
-
-    console.log(this.CurrentUser);
-
-    if (this.CurrentUser == null && typeof this._eventUserLogout === 'function') {
-      this._eventUserLogout();
-    }
+  public getCurrentUser() {
+    return new Promise((resolve, reject) => {
+      if (this._currentUser != null) {
+        resolve(this._currentUser);
+      } else {
+        const unsubscribe = Firebase.auth().onAuthStateChanged(user => {
+          unsubscribe();
+          if (user) {
+            this._currentUser = {
+              displayName: user.displayName,
+              email: user.email,
+              photoURL: user.photoURL,
+              isAnonymous: user.isAnonymous,
+              uid: user.uid,
+              providerData: user.providerData
+            };
+            resolve(this._currentUser);
+          } else {
+            reject();
+          }
+        }, reject);
+      }
+    });
   }
 }

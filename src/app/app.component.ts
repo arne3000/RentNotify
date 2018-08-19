@@ -23,9 +23,5 @@ export class AppComponent implements OnInit {
       storageBucket: 'rentsystem-web.appspot.com',
       messagingSenderId: '1089457440381'
     });
-
-    this.membershipService.OnUserLogout(x => {
-      this.router.navigate(['/login']);
-    });
   }
 }
