@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
+import { HouseholdService, UserHousehold } from '../services/household.service';
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -7,8 +9,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardComponent implements OnInit {
 
-  constructor() { }
+  public households: Array<UserHousehold>;
+
+  constructor(private householdService: HouseholdService) { }
 
   ngOnInit() {
+    this.householdService.currentUserHouseholds().then((households) => {
+      this.households = households;
+    });
   }
 }

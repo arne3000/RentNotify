@@ -1,5 +1,9 @@
 <h2>Dashboard</h2>
 
-<p>
-  dashboard works!
-</p>
+<h3>Households</h3>
+<ul>
+  <li *ngFor="let household of households">
+    {{household.displayName}} <a routerLink="['/Household/', household.id]">view</a>
+ </li>
+ <li><a routerLink="['/Household', 'New']">add new household</a></li>
+</ul>

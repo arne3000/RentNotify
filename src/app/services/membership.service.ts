@@ -4,48 +4,57 @@ import Firebase from '@firebase/app';
 import '@firebase/auth';
 
 export class MembershipServiceConfig {
-  signInOptions = [];
+  public signInOptions: Array<string>;
+}
+
+export class MembershipUser {
+  public displayName: string;
+  public email: string;
+  public photoURL: string;
+  public isAnonymous: boolean;
+  public uid: string;
+  public providerData: Array<any>;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class MembershipService {
-  private _firebaseAuthUI = null;
-  private _currentUser = null;
-
-  public signInOptions = [];
+  private firebaseAuthUI: FirebaseUI.auth.AuthUI;
+  private configuration: MembershipServiceConfig;
+  private currentUser: MembershipUser;
 
   constructor(@Optional() config: MembershipServiceConfig) {
     if (config) {
-      this.signInOptions = config.signInOptions;
+      this.configuration = config;
+    } else {
+      this.configuration = new MembershipServiceConfig();
     }
   }
 
   public get authUI() {
-    if (this._firebaseAuthUI == null) {
-      this._firebaseAuthUI = new FirebaseUI.auth.AuthUI(Firebase.auth());
+    if (!this.firebaseAuthUI) {
+      this.firebaseAuthUI = new FirebaseUI.auth.AuthUI(Firebase.auth());
     }
-    return this._firebaseAuthUI;
+    return this.firebaseAuthUI;
   }
 
   public getCurrentUser() {
-    return new Promise((resolve, reject) => {
-      if (this._currentUser != null) {
-        resolve(this._currentUser);
+    return new Promise<MembershipUser>((resolve, reject) => {
+      if (this.currentUser) {
+        resolve(this.currentUser);
       } else {
         const unsubscribe = Firebase.auth().onAuthStateChanged(user => {
           unsubscribe();
           if (user) {
-            this._currentUser = {
-              displayName: user.displayName,
-              email: user.email,
-              photoURL: user.photoURL,
-              isAnonymous: user.isAnonymous,
-              uid: user.uid,
-              providerData: user.providerData
-            };
-            resolve(this._currentUser);
+            this.currentUser = new MembershipUser();
+            this.currentUser.displayName = user.displayName;
+            this.currentUser.email = user.email;
+            this.currentUser.photoURL = user.photoURL;
+            this.currentUser.isAnonymous = user.isAnonymous;
+            this.currentUser.uid = user.uid;
+            this.currentUser.providerData = user.providerData;
+            resolve(this.currentUser);
           } else {
             reject();
           }
